@@ -2,49 +2,50 @@ import requests
 import os
 import subprocess
 import time
+import argparse
 
 #url_list = ["http://www.google.com","http://www.microsoft.com"]
 ping_list = ["8.8.8.8","1.1.1.1"]
 timeout = 5
 
 def change_connection():
-    with open("witch_one.txt","r") as file:
+    with open("/home/witch_one.txt","r") as file:
         for line in file:
             if str(line) == "1\n":
                 print("entree dans le if")
                 file.close()
                 #os.system("ip link set eno1 down")
-                os.system("dhclient -r")
+                os.system("/usr/sbin/dhclient -r")
                 time.sleep(5)
                 os.system("ip link set eno1 down")
                 time.sleep(5)
                 os.system("ip link set enp3s0 up")
                 time.sleep(5)
-                os.system("dhclient")
+                os.system("/usr/sbin/dhclient")
                 time.sleep(5)
                 os.system("ip link set eno1 down")
                 os.system("ip addr del 192.168.31.100/24 dev eno1")
                 os.system("ip route add 0/0 via 192.168.1.254 dev enp3s0")
-                os.remove("witch_one.txt")
-                os.system("echo 2 > witch_one.txt")
+                os.remove("/home/witch_one.txt")
+                os.system("echo 2 > /home/witch_one.txt")
                 #os.remove("/etc/resolv.conf")
                 #os.system("echo nameserver 8.8.8.8 > /etc/resolv.conf")
                 exit()
             else:
                 print("entree dans le else")
                 file.close()
-                os.system("dhclient -r")
+                os.system("/usr/sbin/dhclient -r")
                 time.sleep(5)
                 os.system("ip link set enp3s0 down")
                 time.sleep(5)
                 os.system("ip link set eno1 up")
                 time.sleep(5)
-                os.system("dhclient")
+                os.system("/usr/sbin/dhclient")
                 time.sleep(5)
                 os.system("ip link set enp3s0 down")
                 os.system("ip addr del 192.168.1.16/24 dev enp3s0")
-                os.remove("witch_one.txt")
-                os.system("echo 1 > witch_one.txt")
+                os.remove("/home/witch_one.txt")
+                os.system("echo 1 > /home/witch_one.txt")
                 #os.remove("/etc/resolv.conf")
                 #os.system("echo nameserver 8.8.8.8 > /etc/resolv.conf")
                 exit()
@@ -56,7 +57,13 @@ def scan_ping(ping_list):
             print("tu as internet")
             exit()
         else:
+            print("pas internet")
             change_connection()
 
+parser = argparse.ArgumentParser()
+parser.add_argument("-c", "--change", help="changing interfaces", default=False, action="store_true")
+args = parser.parse_args()
+if args.change != False:
+        change_connection()
 scan_ping(ping_list)
 #change_connection()
